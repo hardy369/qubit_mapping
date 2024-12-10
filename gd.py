@@ -32,15 +32,12 @@ for gate_number, gate in enumerate(dag.two_qubit_ops()):  # Consider only two-qu
     
     # Append the edge with the gate number (weight)
     interaction_edges.append((qubits[0], qubits[1], first_interaction[qubit_pair]))  # Use the first gate number
-
-
+    
 G = nx.Graph()
-
 # Add edges to the graph with weights (gate numbers)
 for edge in interaction_edges:
     qubit1, qubit2, gate_number = edge
     G.add_edge(qubit1, qubit2, weight=gate_number)
-
 
 pos = nx.spring_layout(G)  # Positions for nodes using spring layout
 plt.figure(figsize=(8, 6))  # Set the figure size
