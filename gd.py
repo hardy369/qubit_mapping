@@ -14,10 +14,10 @@ qc.cx(2, 3)
 qc.cx(0, 3)
 qc.measure_all()
 
-#  Convert the circuit to a DAG
+# Convert the circuit to a DAG (directed acyclic graph)
 dag = circuit_to_dag(qc)
 
-#  Extract the interaction graph with edge weights (gate numbers)
+# Extract the interaction graph with edge weights (gate numbers)
 interaction_edges = []  # Store edges as pairs of qubits with gate numbers
 first_interaction = {}  # Store the first gate number for each pair of qubits
 
@@ -32,22 +32,78 @@ for gate_number, gate in enumerate(dag.two_qubit_ops()):  # Consider only two-qu
     
     # Append the edge with the gate number (weight)
     interaction_edges.append((qubits[0], qubits[1], first_interaction[qubit_pair]))  # Use the first gate number
-    
-G = nx.Graph()
+
+# Create an undirected graph for the interaction
+Gd = nx.Graph()
+
 # Add edges to the graph with weights (gate numbers)
 for edge in interaction_edges:
     qubit1, qubit2, gate_number = edge
-    G.add_edge(qubit1, qubit2, weight=gate_number)
+    Gd.add_edge(qubit1, qubit2, weight=gate_number)
 
-pos = nx.spring_layout(G)  # Positions for nodes using spring layout
-plt.figure(figsize=(8, 6))  # Set the figure size
+# Find the center of the graph
+centers = nx.center(Gd)
 
-# Draw the graph with labels and edge weights
-nx.draw(G, pos, with_labels=True, node_size=500, node_color='skyblue', font_size=15, font_weight='bold', edge_color='gray')
-edge_labels = nx.get_edge_attributes(G, 'weight')  # Get the edge weights
-nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=12, font_color='red')
+# Ensure a single center (choose the first one or a specific rule)
+center = min(centers)  # Take the first center node
 
-# Show the plot
-plt.title("Quantum Circuit Interaction Graph with Gate Numbers")
+# Perform BFS traversal from the selected center
+bfs_edges = list(nx.bfs_edges(Gd, center))
+bfs_traversal = [center] + [v for u, v in bfs_edges]
+
+#print("Center of the Graph:", center)
+#print("BFS Traversal:", bfs_traversal)
+
+# adding the coupling graph
+coupling_graph = {
+    'Q0': ['Q1','Q5'],  
+    'Q1': ['Q0','Q2','Q6','Q7'],  
+    'Q2': ['Q1','Q3','Q6','Q7'],       
+    'Q3': ['Q2','Q4','Q8','Q9'],  
+    'Q4': ['Q3','Q8','Q9'],  
+    'Q5': ['Q0','Q6','Q10','Q11'], 
+    'Q6': ['Q1','Q2','Q5','Q7','Q10','Q11'],  
+    'Q7': ['Q1','Q2','Q6','Q8','Q12','Q13'],  
+    'Q8': ['Q3','Q4','Q7','Q9','Q12','Q13'], 
+    'Q9': ['Q3','Q4','Q8','Q14'] ,
+    'Q10': ['Q5','Q6','Q11','Q15'],  
+    'Q11': ['Q5','Q6','Q10','Q12','Q16','Q17'],  
+    'Q12': ['Q7','Q8','Q11','Q13','Q16','Q17'],       
+    'Q13': ['Q7','Q8','Q12','Q14','Q18','Q19'],  
+    'Q14': ['Q9','Q13','Q18','Q19'],  
+    'Q15': ['Q10','Q16'], 
+    'Q16': ['Q11','Q12','Q15','Q17'],  
+    'Q17': ['Q11','Q12','Q16','Q18'],  
+    'Q18': ['Q13','Q14','Q17','Q19'], 
+    'Q19': ['Q13','Q14','Q18']        
+}
+
+
+Gc = nx.Graph(coupling_graph)
+
+# Find the center of the graph
+cens = nx.center(Gc)
+
+# Ensure a single center if multiple centers exist
+cen = min(cens)  # Choose the lexicographically smallest node
+
+# Print the center of the graph
+print("Center of the Coupling Graph:", cen)
+# Plot the coupling graph
+plt.figure(figsize=(12, 8))
+pos = nx.spring_layout(Gc)  # Spring layout for a visually appealing graph
+nx.draw(
+    Gc, 
+    pos, 
+    with_labels=True, 
+    node_color="lightblue", 
+    node_size=800, 
+    font_size=10, 
+    edge_color="gray"
+)
+# Highlight the center node
+nx.draw_networkx_nodes(Gc, pos, nodelist=[cen], node_color="orange", node_size=1000)
+
+# Add a title
+plt.title("Coupling Graph with Center Highlighted", fontsize=16)
 plt.show()
-
