@@ -19,7 +19,11 @@ To run the code:
 This file contains code to:
 - Extract the interaction graph from a quantum circuit.
 - Identify centers of interaction within the interaction graph.
-- Handle the coupling graph representation.
+- Handle the coupling graph representation and also the center of the coupling graph.
+
+  
+### **ig.py**
+This file prints the interaction graph from the quantum circuit.
 
 ### **im.py**
 This file implements the initial qubit mapping algorithm, which includes the expansion from the center of the interaction graph.
