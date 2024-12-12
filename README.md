@@ -34,6 +34,8 @@ The interaction graph represents the logical connections between qubits in the q
 - From the DAG, an interaction graph is constructed where:
   - **Nodes** represent logical qubits.
   - **Edges** represent interactions between qubits, weighted by the gate order in the circuit.
+![image](https://github.com/user-attachments/assets/349e75bb-ca78-4b34-a3cf-d825a35c5cb5)
+
 
 ### **2. Coupling Graph (Gc):**
 The coupling graph represents the physical constraints of a quantum computer's qubits.
