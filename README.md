@@ -15,13 +15,13 @@ To run the code:
 
 ## **File Descriptions**
 
-### **`gd.py`**
+### **gd.py**
 This file contains code to:
 - Extract the interaction graph from a quantum circuit.
 - Identify centers of interaction within the interaction graph.
 - Handle the coupling graph representation.
 
-### **`im.py`**
+### **im.py**
 This file implements the initial qubit mapping algorithm, which includes the expansion from the center of the interaction graph.
 
 ---
@@ -44,7 +44,7 @@ The coupling graph represents the physical constraints of a quantum computer's q
 The mapping algorithm ensures an optimal assignment of logical qubits to physical qubits, considering the constraints of the coupling graph.
 
 #### Steps:
-1. Identify the **center** of the interaction graph (`interaction_center`) and map it to the **center** of the coupling graph (`coupling_center`).
+1. Identify the **center** of the interaction graph (interaction_center) and map it to the **center** of the coupling graph (coupling_center).
 2. Perform a Breadth-First Search (BFS) traversal of the interaction graph to determine the order of mapping.
 3. Select candidate physical qubits for mapping based on:
    - **Proximity** to already mapped qubits.
