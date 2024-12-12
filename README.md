@@ -5,7 +5,7 @@ We are implementing the algorithms based on the research paper **A dynamic look-
 
 To run the code :
 Install qiskit and its environment using the IBM documentation :https://docs.quantum.ibm.com/guides/install-qiskit
-also make sure you have python intsalled on your computer.
+also make sure you have python installed on your computer.
 run the  python files.
 
 gd: This file contains the code for interaction graph from the quantum circuit and obtaining centers of interaction and coupling graphs.
