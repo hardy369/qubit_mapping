@@ -51,8 +51,8 @@ center = min(centers)  # Take the first center node
 bfs_edges = list(nx.bfs_edges(Gd, center))
 bfs_traversal = [center] + [v for u, v in bfs_edges]
 
-#print("Center of the Graph:", center)
-#print("BFS Traversal:", bfs_traversal)
+print("Center of the Graph:", center)
+print("BFS Traversal:", bfs_traversal)
 
 # adding the coupling graph
 coupling_graph = {
