@@ -12,3 +12,25 @@ run the  python files.
 
 
 **im:** This file implements the initial mapping algorithm (expansion from center).
+
+**How the Code Works**
+
+**Interaction Graph (Gd):**
+i)The circuit is converted into a Directed Acyclic Graph (DAG).
+ii)From the DAG, an interaction graph is constructed where:
+  Nodes represent qubits.
+  Edges represent interactions between qubits, weighted by the gate order.
+
+**Coupling Graph (Gc):**
+i)A predefined graph models the physical constraints of a quantum computer's qubits.
+ii)Nodes represent physical qubits, and edges represent possible connections.
+
+**Mapping Algorithm:**
+i)The center of the interaction graph (interaction_center) is mapped to the center of the coupling graph (coupling_center).
+ii)A Breadth-First Search (BFS) traversal of the interaction graph determines the mapping order.
+iii)Candidate physical qubits are selected for mapping based on:
+  Proximity to already mapped qubits.
+  Degree (number of neighbors) as a tie-breaker.
+
+**Output:**
+A mapping (π) that assigns logical qubits to physical qubits.
