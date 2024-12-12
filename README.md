@@ -9,4 +9,6 @@ also make sure you have python intsalled on your computer.
 run the  python files.
 
 gd: This file contains the code for interaction graph from the quantum circuit and obtaining centers of interaction and coupling graphs.
+
+
 im: This file implements the initial mapping algorithm (expansion from center).
