@@ -28,6 +28,9 @@ This file prints the interaction graph from the quantum circuit.
 ### **im.py**
 This file implements the initial qubit mapping algorithm, which includes the expansion from the center of the interaction graph.
 
+### **dl_dm.py**
+
+This file prints the dependency list and distance matrix 
 ---
 
 ## **How the Code Works**
