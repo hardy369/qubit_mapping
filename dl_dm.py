@@ -47,7 +47,7 @@ for edge in interaction_edges:
     qubit1, qubit2, gate_number = edge
     Gd.add_edge(qubit1, qubit2, weight=gate_number)
 
-# Define the coupling graph (Gc)
+# Defined the coupling graph (Gc)
 coupling_graph = {
     'Q0': ['Q1','Q5'],
     'Q1': ['Q0','Q2','Q6','Q7'],
