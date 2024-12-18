@@ -90,6 +90,8 @@ while queue:
     p = queue.pop(0)  # Get the next interaction node
     
     # Reference locations and candidate locations
+    #ref_locs neighbors of current node in interaction graph which are already mapped
+    #candi_locs neighbours of the mapped physical qubit(of ref locs) which are not mapped yet
     ref_locs = [neighbor for neighbor in Gd.neighbors(p) if neighbor in mapping]
     candi_locs = [neighbor for neighbor in Gc.neighbors(mapping[ref_locs[0]]) if neighbor not in mapped_qubits]
 
@@ -101,7 +103,7 @@ while queue:
         mapping[p] = candi_locs[0]
         mapped_qubits.add(candi_locs[0])
     else:
-        # Use degree as a tie-breaker
+        # the node with the highest degree is choosen in case of a tie
         selected = max(candi_locs, key=lambda x: Gc.degree[x])
         mapping[p] = selected
         mapped_qubits.add(selected)
