@@ -72,7 +72,7 @@ def schedule_quantum_circuit(coupling_graph, initial_mapping, num_qubits=20):
         dlist[c].push_back(gate)
         dlist[t].push_back(gate)
     
-    # Computes distances between nodes in coupling graph for MCPE calculation
+    # Computes distances between nodes in coupling graph 
     distances = [[float('inf')] * num_qubits for _ in range(num_qubits)]
     for node, neighbors in coupling_graph.items():
         i = int(node[1:])
