@@ -31,6 +31,9 @@ This file implements the initial qubit mapping algorithm, which includes the exp
 ### **dl_dm.py**
 This file prints the Dependence list and Distance matrix 
 
+### **swap.py**
+This file returns the final circuit after checking the connectivity constraintas and swaps if needed 
+
 ---
 
 ## **How the Code Works**
