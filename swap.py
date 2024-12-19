@@ -2,7 +2,7 @@ import networkx as nx
 from qiskit import QuantumCircuit
 from qiskit.converters import circuit_to_dag
 from collections import defaultdict, deque
-
+# define a gate
 class Gate:
     def __init__(self, control, target):
         self.control = control
@@ -33,10 +33,12 @@ def calculate_mcpe_cost(swap, active_gates, current_mapping, distances):
             temp_mapping[q] = p1
     
     for gate in active_gates:
+        # old_dist: before swap the distance between physical qubits 
         old_dist = distances[current_mapping[gate.control]][current_mapping[gate.target]]
+          # new_dist: after swap the distance between physical qubits 
         new_dist = distances[temp_mapping[gate.control]][temp_mapping[gate.target]]
+        # score denotes the mcpe of swap
         score += old_dist - new_dist
-    
     return score
 
 def check_connectivity(gate, current_mapping, coupling_graph):
@@ -44,24 +46,22 @@ def check_connectivity(gate, current_mapping, coupling_graph):
     pos2 = current_mapping[gate.target]
     node1 = f'Q{pos1}'
     node2 = f'Q{pos2}'
+    # returns 1 if there is an edge between node 1 and node 2 in the coupling graph. else returns 0.  
     return node2 in coupling_graph[node1]
 
 def get_reverse_mapping(mapping):
-    """Convert physical-to-logical mapping from logical-to-physical mapping"""
     return {v: k for k, v in mapping.items()}
 
-def schedule_quantum_circuit(coupling_graph, initial_mapping, num_qubits=20):
-    # Initialize circuit with enough qubits
+def schedule_quantum_circuit(coupling_graph, initial_mapping, num_qubits=6):
     final_cir = QuantumCircuit(num_qubits)
     current_mapping = initial_mapping.copy()
     
-    # Initialize data structures
     fron_list = []
     act_list = []
     frozen = {q: False for q in range(num_qubits)}
     executed_gates = []  # Track executed gates order
     
-    # Create dependence lists
+    #  dependence lists
     dlist = defaultdict(DependenceList)
     gates = [(0, 2), (5, 2), (0, 5), (4, 0), (0, 3), (5, 0), (3, 1)]
     for c, t in gates:
@@ -82,7 +82,7 @@ def schedule_quantum_circuit(coupling_graph, initial_mapping, num_qubits=20):
     operations = []
     
     while True:
-        # Process frontier list
+        
         for q in range(num_qubits):
             if not frozen[q]:
                 gate = dlist[q].head()
@@ -96,7 +96,7 @@ def schedule_quantum_circuit(coupling_graph, initial_mapping, num_qubits=20):
                             fron_list.append(gate)
                     frozen[q] = True
         
-        # Execute gates satisfying connectivity
+        # Execute gates that are satisfying connectivity constraint
         gates_to_remove = []
         for gate in act_list:
             if check_connectivity(gate, current_mapping, coupling_graph):
@@ -156,8 +156,7 @@ def schedule_quantum_circuit(coupling_graph, initial_mapping, num_qubits=20):
             final_logical_cir.swap(q1, q2)
     
     return final_logical_cir
-
-# Example usage
+#input coupling graph and initial mapping
 coupling_graph = {
     'Q0': ['Q1','Q5'],
     'Q1': ['Q0','Q2','Q6','Q7'],
