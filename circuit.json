@@ -1,0 +1,26 @@
+{
+    "n_qubits": 5,
+    "gates": [
+        {"type": "cx", "control": 3, "target": 2},
+        {"type": "cx", "control": 2, "target": 1},
+        {"type": "cx", "control": 1, "target": 0},
+        {"type": "cx", "control": 0, "target": 4},
+        {"type": "cx", "control": 4, "target": 3},
+        {"type": "cx", "control": 3, "target": 2},
+        {"type": "cx", "control": 2, "target": 1},
+        {"type": "cx", "control": 1, "target": 0},
+        {"type": "cx", "control": 0, "target": 4},
+        {"type": "cx", "control": 4, "target": 3},
+        {"type": "cx", "control": 3, "target": 2},
+        {"type": "cx", "control": 2, "target": 1},
+        {"type": "cx", "control": 1, "target": 0},
+        {"type": "cx", "control": 0, "target": 4},
+        {"type": "cx", "control": 4, "target": 3},
+        {"type": "cx", "control": 3, "target": 2},
+        {"type": "cx", "control": 2, "target": 1},
+        {"type": "cx", "control": 1, "target": 0},
+        {"type": "cx", "control": 0, "target": 4},
+        {"type": "cx", "control": 4, "target": 3},
+        {"type": "cx", "control": 3, "target": 2}
+    ]
+}
