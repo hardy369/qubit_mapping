@@ -8,10 +8,39 @@ class MCPEOptimizer:
     def __init__(self, coupling_graph: nx.Graph):
         self.coupling_graph = coupling_graph
         self.dist_matrix = dict(nx.all_pairs_shortest_path_length(coupling_graph))
+        self.front_list = []  # List of frontier gates
+        self.act_list = []    # List of active gates
+        self.frozen = {}      # Dictionary to track frozen qubits
         
     def calculate_dist(self, p1: int, p2: int) -> int:
         """Calculate the nearest neighbor distance between two physical qubits."""
         return self.dist_matrix[p1][p2]
+    
+    def initialize_lists(self, circuit_data: List):
+        """Initialize front_list and frozen states."""
+        self.front_list = []
+        self.act_list = []
+        self.frozen = {i: False for i in range(len(circuit_data))}
+        
+        # Add first gate to front_list
+        if circuit_data:
+            self.front_list.append(circuit_data[0])
+    
+    def update_lists(self, executed_gate_idx: int, circuit_data: List):
+        """Update front_list and act_list after gate execution."""
+        # Remove executed gate from lists
+        if executed_gate_idx < len(circuit_data):
+            gate = circuit_data[executed_gate_idx]
+            if gate in self.front_list:
+                self.front_list.remove(gate)
+            if gate in self.act_list:
+                self.act_list.remove(gate)
+            
+            # Add next gate to front_list if exists
+            if executed_gate_idx + 1 < len(circuit_data):
+                next_gate = circuit_data[executed_gate_idx + 1]
+                if next_gate not in self.front_list:
+                    self.front_list.append(next_gate)
     
     def calculate_mcpe(self, circuit_slice: List[Tuple[int, int]], swap_qubits: Tuple[int, int], 
                       current_mapping: Dict[int, int]) -> float:
@@ -25,16 +54,13 @@ class MCPEOptimizer:
         
         # Calculate effect on each gate in look-ahead window
         for idx, (control, target) in enumerate(circuit_slice):
-            # Calculate distances before and after SWAP
             old_dist = self.calculate_dist(current_mapping[control], current_mapping[target])
             new_dist = self.calculate_dist(new_mapping[control], new_mapping[target])
-            effect = (old_dist - new_dist) 
-            if effect>0:
-                effect=1
-            # Add to MCPE value
+            effect = (old_dist - new_dist)
+            if effect > 0:
+                effect = 1
             mcpe_value += effect
             
-            # Stop if we find a gate with no positive effect
             if mcpe_value <= 0:
                 break
                 
@@ -52,7 +78,6 @@ class MCPEOptimizer:
                 if control in (q1, q2) or target in (q1, q2):
                     affected_gates.append((control, target))
                     
-                # Stop when we find a gate that's not affected
                 if control not in (q1, q2) and target not in (q1, q2):
                     break
                     
@@ -95,11 +120,16 @@ class MCPEOptimizer:
         
         print("\nStarting MCPE-based circuit optimization...")
         
+        # Initialize lists and frozen states
+        self.initialize_lists(circuit.data)
+        
         idx = 0
         while idx < len(circuit.data):
             instruction = circuit.data[idx]
             operation = instruction.operation
             qubits = instruction.qubits
+            
+            print(f"\nProcessing gate {idx}: {operation.name} on qubits {[q._index for q in qubits]}")
             
             if len(qubits) == 2:
                 control = qubits[0]._index
@@ -107,8 +137,11 @@ class MCPEOptimizer:
                 mapped_control = current_mapping[control]
                 mapped_target = current_mapping[target]
                 
+                print(f"Mapped qubits: control={mapped_control}, target={mapped_target}")
+                
                 # Check if qubits are adjacent
                 if not self.coupling_graph.has_edge(mapped_control, mapped_target):
+                    print("Qubits not adjacent, searching for SWAP...")
                     # Find best SWAP
                     best_swap = self.find_best_swap(circuit.data, idx, current_mapping)
                     
@@ -116,14 +149,19 @@ class MCPEOptimizer:
                         q1, q2 = best_swap
                         phys_q1 = current_mapping[q1]
                         phys_q2 = current_mapping[q2]
+                        
+                        # Add SWAP gate
                         new_circuit.swap(phys_q1, phys_q2)
                         current_mapping[q1], current_mapping[q2] = current_mapping[q2], current_mapping[q1]
-                        print(f"Applied MCPE-selected SWAP {best_swap}, new mapping: {current_mapping}")
+                        print(f"Applied SWAP {best_swap}, new mapping: {current_mapping}")
+                        
+                        # Don't increment idx as we need to retry the current gate
                         continue
                 
-                # Apply the gate if possible
+                # Try to apply the gate
                 if self.coupling_graph.has_edge(mapped_control, mapped_target):
                     new_circuit.append(operation, [mapped_control, mapped_target])
+                    print(f"Added gate {operation.name} between {mapped_control} and {mapped_target}")
                 elif self.coupling_graph.has_edge(mapped_target, mapped_control):
                     if operation.name == 'cx':
                         new_circuit.h(mapped_control)
@@ -131,6 +169,7 @@ class MCPEOptimizer:
                         new_circuit.cx(mapped_target, mapped_control)
                         new_circuit.h(mapped_control)
                         new_circuit.h(mapped_target)
+                        print(f"Added reversed {operation.name} between {mapped_target} and {mapped_control}")
                     else:
                         raise ValueError(f"Unsupported gate {operation.name} for reverse implementation")
             else:
@@ -138,7 +177,9 @@ class MCPEOptimizer:
                 qubit = qubits[0]._index
                 mapped_qubit = current_mapping[qubit]
                 new_circuit.append(operation, [mapped_qubit])
+                print(f"Added single-qubit gate {operation.name} on {mapped_qubit}")
             
+            self.update_lists(idx, circuit.data)
             idx += 1
         
         return new_circuit, current_mapping
